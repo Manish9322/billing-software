@@ -15,7 +15,16 @@ def get_db_connection():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # Fetch all products from the database
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM products")
+    products = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    
+    return render_template('index.html', products=products)
+
 
 @app.route('/add-product', methods=['POST'])
 def add_product():
@@ -53,7 +62,7 @@ def add_product():
             connection.close()
 
         # Redirect to the home page, passing the new product to be displayed
-        return render_template('index.html', new_product=(product_name, product_price, quantity, product_brand, product_supplier, old_stock, category))
-
+        return redirect(url_for('index'))
+    
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run( port=5001,debug=True)
