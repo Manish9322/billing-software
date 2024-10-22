@@ -44,13 +44,13 @@
 
         <div class="numbers">
             <div class="t-sales">
-                <h2>Total Sales </h2>
-                <p>52,435 Units</p>
+                <h2>Total Sales</h2>
+                <p id="total-units">0 Units</p> <!-- Update dynamically -->
             </div>
 
             <div class="t-rev">
                 <h2>Revenue</h2>
-                <p>$540,000</p>
+                <p id="total-revenue">$0.00</p> <!-- Update dynamically -->
             </div>
         </div>
 
@@ -69,19 +69,19 @@
                         <div><strong>Category:</strong></div>
                     </div>
                     {% if products %}
-                        {% for product in products %}
-                            <div class="product-item">
-                                <div>{{ product[1] }}</div>
-                                <div>{{ product[2] }}</div>
-                                <div>{{ product[3] }}</div>
-                                <div>{{ product[4] }}</div>
-                                <div>{{ product[5] }}</div>
-                                <div>{{ product[6] }}</div>
-                                <div>{{ product[7] }}</div>
-                            </div>
-                        {% endfor %}
+                    {% for product in products %}
+                    <div class="product-item">
+                        <div>{{ product[1] }}</div>
+                        <div>{{ product[2] }}</div>
+                        <div>{{ product[3] }}</div>
+                        <div>{{ product[4] }}</div>
+                        <div>{{ product[5] }}</div>
+                        <div>{{ product[6] }}</div>
+                        <div>{{ product[7] }}</div>
+                    </div>
+                    {% endfor %}
                     {% else %}
-                        <div>No products available.</div>
+                    <div>No products available.</div>
                     {% endif %}
                 </div>
             </div>
@@ -92,16 +92,16 @@
             <div class="scrollable-list">
                 <div class="customer-list">
                     {% if customers %}
-                        {% for customer in customers %}
-                            <div class="customer-item" data-name="{{ customer[1] }}">
-                                <div>Name: {{ customer[1] }}</div>
-                                <div>Gender: {{ customer[2] }}</div>
-                                <div>Contact: {{ customer[3] }}</div>
-                                <div>Email: {{ customer[4] }}</div>
-                            </div>
-                        {% endfor %}
+                    {% for customer in customers %}
+                    <div class="customer-item" data-name="{{ customer[1] }}">
+                        <div>Name: {{ customer[1] }}</div>
+                        <div>Gender: {{ customer[2] }}</div>
+                        <div>Contact: {{ customer[3] }}</div>
+                        <div>Email: {{ customer[4] }}</div>
+                    </div>
+                    {% endfor %}
                     {% else %}
-                        <div>No customers available.</div>
+                    <div>No customers available.</div>
                     {% endif %}
                 </div>
             </div>
@@ -166,43 +166,28 @@
             </form>
         </div>
 
-        <!-- <div class="bill forms">
-
-            <h2>Final Bill</h2>
-
-            <div class="bill-box">
-
-                <p>Customer name : <span id="cust-name"></span></p>
-                <p>Total Products quantity : <span id="tot-pro"></span></p>
-                <p>Total Price : <span id="tot-price"></span></p>
-
-            </div>
-
-
-        </div> -->
-
         <div class="bill-box">
-            
+
             <div class="product-display">
                 <h2>Available Products</h2>
                 <div class="scrollable-list">
                     <div class="product-list">
                         {% if products %}
-                            {% for product in products %}
-                                <div class="product-item">
-                                    <div>{{ product[1] }}</div> <!-- Product Name -->
-                                    <div>Price: $<span>{{ product[2] }}</span></div> <!-- Product Price -->
-                                    <div>Stock: {{ product[3] }}</div>
-                                    <input type="number" id="quantity_{{ product[0] }}" min="0" max="{{ product[3] }}" value="0"> <!-- Quantity Input -->
-                                </div>
-                            {% endfor %}
+                        {% for product in products %}
+                        <div class="product-item">
+                            <div>{{ product[1] }}</div> <!-- Product Name -->
+                            <div>Price: $<span>{{ product[2] }}</span></div> <!-- Product Price -->
+                            <div>Stock: {{ product[3] }}</div>
+                            <input type="number" id="quantity_{{ product[0] }}" min="0" max="{{ product[3] }}" value="0"
+                                class="quantity-input"> <!-- Quantity Input -->
+                        </div>
+                        {% endfor %}
                         {% else %}
-                            <div>No products available.</div>
+                        <div>No products available.</div>
                         {% endif %}
                     </div>
                 </div>
             </div>
-            
 
             <div class="bill-display">
                 <h2>Selected Customer</h2>
@@ -212,13 +197,28 @@
                 <div id="total-amount">Total Amount: $<span id="total-price">0.00</span></div>
                 <button id="submit-bill">Submit Bill</button>
             </div>
-    </div>
-        
-        
+        </div>
+
+
     </section>
 
-    
+
     <script>
+        function fetchSalesData() {
+            fetch('/get-sales-data')
+                .then(response => response.json())
+                .then(data => {
+                    // Update the total units and total revenue in the UI
+                    document.getElementById('total-units').innerText = `${data.total_units_sold} Units`;
+                    document.getElementById('total-revenue').innerText = `$${data.total_revenue.toFixed(2)}`;
+                })
+                .catch(error => {
+                    console.error('Error fetching sales data:', error);
+                });
+        }
+        // Call this function when the page loads
+        window.onload = fetchSalesData;
+
         // Function to select a customer and update the display
         function selectCustomer(name) {
             document.getElementById('selected-customer').innerText = name;
@@ -226,34 +226,64 @@
             document.getElementById('bill-summary').innerHTML = '';
             document.getElementById('total-price').innerText = '0.00';
         }
-    
+
         document.querySelectorAll('.customer-item').forEach(item => {
             item.addEventListener('click', function () {
                 const customerName = this.querySelector('div').innerText.split(': ')[1];
                 selectCustomer(customerName);
             });
         });
-    
-        document.getElementById('submit-bill').addEventListener('click', function () {
-            const selectedProducts = [];
+
+        // Function to calculate the total amount
+        function calculateTotal() {
             let total = 0;
             const billSummary = document.getElementById('bill-summary');
             billSummary.innerHTML = ''; // Clear previous summary
-    
+
             document.querySelectorAll('.product-item').forEach(productItem => {
-                const productId = productItem.querySelector('input').id.split('_')[1];
-                const quantity = document.getElementById('quantity_' + productId).value;
-                const price = parseFloat(productItem.querySelector('div:nth-child(2)').innerText.replace('Price: $', ''));
-    
+                const inputElement = productItem.querySelector('input[type="number"]');
+                if (!inputElement) {
+                    console.warn('No input found for product item:', productItem);
+                    return; // Skip this product if there's no input
+                }
+
+                const productId = inputElement.id.split('_')[1]; // Get product ID from input ID
+                const quantity = parseInt(inputElement.value, 10); // Parse quantity as an integer
+                const price = parseFloat(productItem.querySelector('div:nth-child(2) span').innerText); // Fetch price from the span
+
                 if (quantity > 0) {
-                    const cost = price * quantity;
+                    const cost = price * quantity; // Calculate cost
                     total += cost;
-    
+
                     // Create a new div for the product summary
                     const productSummary = document.createElement('div');
                     productSummary.innerText = `${productItem.querySelector('div:first-child').innerText}: $${cost.toFixed(2)} (Quantity: ${quantity})`;
                     billSummary.appendChild(productSummary);
-    
+                }
+            });
+
+            document.getElementById('total-price').innerText = total.toFixed(2); // Update total price
+        }
+
+        // Add event listener to quantity inputs to recalculate total on change
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('input', calculateTotal);
+        });
+
+        document.getElementById('submit-bill').addEventListener('click', function () {
+            const selectedProducts = [];
+
+            document.querySelectorAll('.product-item').forEach(productItem => {
+                const inputElement = productItem.querySelector('input[type="number"]');
+                if (!inputElement) {
+                    console.warn('No input found for product item:', productItem);
+                    return; // Skip this product if there's no input
+                }
+
+                const productId = inputElement.id.split('_')[1]; // Get product ID from input ID
+                const quantity = parseInt(inputElement.value, 10); // Parse quantity as an integer
+
+                if (quantity > 0) {
                     // Store the selected product info
                     selectedProducts.push({
                         productId: productId,
@@ -261,9 +291,7 @@
                     });
                 }
             });
-    
-            document.getElementById('total-price').innerText = total.toFixed(2);
-    
+
             // If there's at least one product selected, proceed to submit
             if (selectedProducts.length > 0) {
                 // Submit the selected products and customer name via a POST request
@@ -277,21 +305,23 @@
                         products: selectedProducts
                     }),
                 })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                    // Optionally, refresh the page or update the UI
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Success:', data);
+                        // Optionally, refresh the page or update the UI
+                        fetchSalesData(); // Refresh sales data after submission
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
             } else {
                 alert('Please select at least one product to submit the bill.');
             }
         });
     </script>
-    
-    
+
+
+
 
 </body>
 
