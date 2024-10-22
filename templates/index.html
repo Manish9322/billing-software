@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body>
+    <section>
+        <header>
+            <nav>
+                <div>
+                    <p class="icon">BillIt</p>
+                </div>
+                <div class="user">
+                    <input type="text" name="searchbar">
+                    <button>Search</button>
+
+                    <i class="fa-solid fa-user user-i"></i>
+                    <i class="fa-solid fa-bell"></i>
+                </div>
+
+            </nav>
+        </header>
+
+    </section>
+
+    <section class="first-part">
+        <!-- <div class="dashboard">
+            <div class="card">
+              <h3>Total Sales</h3>
+              <p id="total-sales">120</p>
+            </div>
+            <div class="card">
+              <h3>Total Revenue</h3>
+              <p id="total-revenue">$45,000</p>
+            </div>
+          </div> -->
+
+        <div class="t-sales">
+            <h2>Total Sales </h2>
+            <p>52,435 Units</p>
+        </div>
+
+        <div class="t-rev">
+            <h2>Revenue</h2>
+            <p>$540,000</p>
+        </div>
+
+        <div>
+            <div class="product-display forms">
+                <h2>Available Products</h2>
+                <div class="product-list">
+                    {% if products %}
+                        <ul>
+                            {% for product in products %}
+                                <li>
+                                    <strong>Product Name:</strong> {{ product[1] }} <br>
+                                    <strong>Price:</strong> {{ product[2] }} <br>
+                                    <strong>Quantity:</strong> {{ product[3] }} <br>
+                                    <strong>Brand:</strong> {{ product[4] }} <br>
+                                    <strong>Supplier:</strong> {{ product[5] }} <br>
+                                    <strong>Old Stock:</strong> {{ product[6] }} <br>
+                                    <strong>Category:</strong> {{ product[7] }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No products available.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="Sales growth rate">
+            </div>
+
+        </div>
+
+    </section>
+
+    <section class="sec-part">
+
+        <div class="forms">
+
+            <h2>Customer Management</h2>
+
+            <form action="post">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+    
+                <label for="gender">Gender:</label>
+                <select id="gender" name="gender">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+    
+                <label for="contact">Contact:</label>
+                <input type="tel" id="contact" name="contact" required>
+    
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+    
+                <button type="submit">Save</button>
+                <button class="reset" type="reset">Reset</button>
+            </form>
+        </div>
+
+        <div class="forms">
+
+            <h2>Product managament</h2>
+            <form action="/" method="post">
+                <label for="p-name">Product Name :</label>
+                <input type="text" id="name" name="name" required>
+            
+                <label for="p-price">Product Price :</label>
+                <input type="number" id="price" name="price" step="0.01" required>
+            
+                <label for="quantity">Quantity :</label>
+                <input type="number" id="quantity" name="quantity" required>
+            
+                <label for="brand">Product brand:</label>
+                <input type="text" id="brand" name="brand" required>
+            
+                <label for="supplier">Product Supplier :</label>
+                <input type="text" id="supplier" name="supplier" required>
+            
+                <label for="stock">Old Stock :</label>
+                <input type="text" id="stock" name="stock" required>
+            
+                <label for="category">Category :</label>
+                <input type="text" name="category" id="category" required>
+            
+                <button type="submit">Save</button>
+                <button class="reset" type="reset">Reset</button>
+            </form>
+            
+        </div>
+
+        <div class="bill forms">
+
+            <h2>Final Bill</h2>
+
+            <div class="bill-box">
+
+                <p>Customer name : <span id="cust-name"></span></p>
+                <p>Total Products quantity : <span id="tot-pro"></span></p>
+                <p>Total Price : <span id="tot-price"></span></p>
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+</body>
+
+</html>
