@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, jsonify
 import mysql.connector
 
 app = Flask(__name__)
@@ -20,11 +20,15 @@ def index():
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM products")
     products = cursor.fetchall()
+    
+    # Fetch all customers from the database
+    cursor.execute("SELECT * FROM customers")  # Assuming you have a 'customers' table
+    customers = cursor.fetchall()
+    
     cursor.close()
     connection.close()
     
-    return render_template('index.html', products=products)
-
+    return render_template('index.html', products=products, customers=customers)
 
 @app.route('/add-product', methods=['POST'])
 def add_product():
@@ -61,8 +65,76 @@ def add_product():
             cursor.close()
             connection.close()
 
-        # Redirect to the home page, passing the new product to be displayed
+        # Redirect to the home page
         return redirect(url_for('index'))
-    
+
+@app.route('/add-customer', methods=['POST'])
+def add_customer():
+    if request.method == 'POST':
+        # Get form data
+        name = request.form['name']
+        gender = request.form['gender']
+        contact = request.form['contact']
+        email = request.form['email']
+
+        # Insert data into the database
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        try:
+            query = """
+            INSERT INTO customers (name, gender, contact, email)
+            VALUES (%s, %s, %s, %s)
+            """
+            cursor.execute(query, (name, gender, contact, email))
+            connection.commit()
+
+            # Check if the insertion was successful
+            if cursor.rowcount > 0:
+                print("Customer added to the database.")
+
+        except mysql.connector.Error as err:
+            print(f"Error: {err}")
+
+        finally:
+            cursor.close()
+            connection.close()
+
+        # Redirect to the home page
+        return redirect(url_for('index'))
+
+@app.route('/submit-bill', methods=['POST'])
+def submit_bill():
+    data = request.get_json()
+    customer_name = data['customerName']
+    products = data['products']
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        for product in products:
+            product_id = product['productId']
+            quantity = product['quantity']
+
+            # Update the stock in the products table
+            cursor.execute("""
+            UPDATE products 
+            SET quantity = quantity - %s 
+            WHERE id = %s
+            """, (quantity, product_id))
+
+        connection.commit()
+
+        return jsonify({'status': 'success', 'message': 'Bill submitted successfully'})
+
+    except mysql.connector.Error as err:
+        connection.rollback()
+        return jsonify({'status': 'error', 'message': str(err)})
+
+    finally:
+        cursor.close()
+        connection.close()
+
 if __name__ == '__main__':
-    app.run( port=5001,debug=True)
+    app.run(port=5001, debug=True)

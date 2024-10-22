@@ -63,8 +63,14 @@
         .first-part {
             border: 1px solid black;
             display: flex;
-            justify-content: space-around;
+            align-items: center;
+            justify-content: center;
             height: 15rem;
+        }
+
+        .first-part .numbers{
+            width: auto;
+            margin: 0 0.5rem 0 0;
         }
 
         .first-part .t-sales {
@@ -77,6 +83,12 @@
         }
 
         .first-part .t-sales p,
+        h2 {
+            padding: 0;
+            margin: 0;
+        }
+
+        .first-part .t-rev p,
         h2 {
             padding: 0;
             margin: 0;
@@ -145,10 +157,6 @@
             /* flex-direction: column; */
         }
 
-        .sec-part .bill{
-            
-        }
-
         .bill .bill-box{
             border: 1px solid black;
             padding: 0.5rem;
@@ -163,35 +171,76 @@
             display: flex;
         }
 
-        .product-display {
-            margin-top: 0px;
-            max-height: 200px;
-            /* border: 1px solid black; */
+        .product-display,
+        .customer-display {
+            margin-top: 1rem; /* Space between sections */
+            max-height: 200px; /* Limit height for scrollability */
+            margin: 0 0.5rem; /* Adjust margin */
+            border: 1px solid #ddd; /* Add border for better visibility */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow effect */
+            overflow: hidden; /* Ensure contents do not overflow */
         }
         
         .scrollable-list {
-            max-height: 200px; /* Set a max height for the list */
-            overflow-y: scroll; /* Enable vertical scrolling */
-            border: 1px solid #000000;
-            padding: 20px; /* Optional: Add padding */
-            background-color: #f9f9f9; /* Optional: Set a background color */
+            max-height: 150px; /* Height of the scrollable area */
+            overflow-y: auto; /* Enable vertical scrolling */
+            padding: 10px; /* Inner padding */
         }
         
-        .product-list {
-            display: flex;
-            flex-direction: column;
+        .product-list,
+        .customer-list {
+            display: flex; /* Use flexbox for layout */
+            flex-direction: column; /* Arrange items vertically */
+        }
+        
+        .product-item,
+        .customer-item {
+            display: flex; /* Use flexbox for item layout */
+            justify-content: space-between; /* Space items evenly */
+            padding: 5px 0; /* Padding between items */
+        }
+        
+        .product-item.header,
+        .customer-item.header {
+            width: 100%;
+            font-weight: bold; /* Bold headers */
+            background-color: #f9f9f9; /* Light background for headers */
+            border-bottom: 1px solid #ddd; /* Divider line */
+        }
+
+        .product-item div,
+        .customer-item div {
+            margin: 0 1rem;
+        }
+        
+
+        .billing-section {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        .product-selection {
+            margin-top: 10px;
         }
         
         .product-item {
             display: flex;
-            flex-direction: row;
             justify-content: space-between;
-            padding: 5px 0;
+            padding: 5px;
         }
         
-        .product-item.header {
-            font-weight: bold;
+        .product-item input {
+            width: 60px;
         }
+
+        .bill-box{
+            width: 100%;
+            height: auto;
+        }
+        
         
         
         
