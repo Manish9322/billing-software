@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect
+from flask import Flask, request, render_template, redirect, url_for
 import mysql.connector
 
 app = Flask(__name__)
@@ -13,11 +13,14 @@ def get_db_connection():
     )
     return connection
 
-# Home route - Display products and add new products
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
+    return render_template('index.html')
+
+@app.route('/add-product', methods=['POST'])
+def add_product():
     if request.method == 'POST':
-        # Get form data from the request
+        # Get form data
         product_name = request.form['name']
         product_price = request.form['price']
         quantity = request.form['quantity']
@@ -26,31 +29,31 @@ def index():
         old_stock = request.form['stock']
         category = request.form['category']
 
-        # Insert the new product into the database
+        # Insert data into the database
         connection = get_db_connection()
         cursor = connection.cursor()
 
-        query = """
-        INSERT INTO products (product_name, product_price, quantity, product_brand, product_supplier, old_stock, category)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """
-        cursor.execute(query, (product_name, product_price, quantity, product_brand, product_supplier, old_stock, category))
-        connection.commit()
+        try:
+            query = """
+            INSERT INTO products (product_name, product_price, quantity, product_brand, product_supplier, old_stock, category)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """
+            cursor.execute(query, (product_name, product_price, quantity, product_brand, product_supplier, old_stock, category))
+            connection.commit()
 
-        cursor.close()
-        connection.close()
+            # Check if the insertion was successful
+            if cursor.rowcount > 0:
+                print("Product added to the database.")
 
-    # Fetch all products from the database (for GET request)
-    connection = get_db_connection()
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM products")
-    products = cursor.fetchall()
+        except mysql.connector.Error as err:
+            print(f"Error: {err}")
 
-    cursor.close()
-    connection.close()
+        finally:
+            cursor.close()
+            connection.close()
 
-    # Render the same page with the list of products
-    return render_template('index.html', products=products)
+        # Redirect to the home page, passing the new product to be displayed
+        return render_template('index.html', new_product=(product_name, product_price, quantity, product_brand, product_supplier, old_stock, category))
 
 if __name__ == '__main__':
     app.run(debug=True)

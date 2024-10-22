@@ -62,33 +62,21 @@
             <p>$540,000</p>
         </div>
 
-        <div>
-            <div class="product-display forms">
-                <h2>Available Products</h2>
-                <div class="product-list">
-                    {% if products %}
-                        <ul>
-                            {% for product in products %}
-                                <li>
-                                    <strong>Product Name:</strong> {{ product[1] }} <br>
-                                    <strong>Price:</strong> {{ product[2] }} <br>
-                                    <strong>Quantity:</strong> {{ product[3] }} <br>
-                                    <strong>Brand:</strong> {{ product[4] }} <br>
-                                    <strong>Supplier:</strong> {{ product[5] }} <br>
-                                    <strong>Old Stock:</strong> {{ product[6] }} <br>
-                                    <strong>Category:</strong> {{ product[7] }}
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>No products available.</p>
-                    {% endif %}
+        <div class="product-display">
+            <h2>Newly Added Product</h2>
+            {% if new_product %}
+                <div class="product-item">
+                    <p><strong>Product Name:</strong> {{ new_product[1] }}</p>
+                    <p><strong>Price:</strong> {{ new_product[2] }}</p>
+                    <p><strong>Quantity:</strong> {{ new_product[3] }}</p>
+                    <p><strong>Brand:</strong> {{ new_product[4] }}</p>
+                    <p><strong>Supplier:</strong> {{ new_product[5] }}</p>
+                    <p><strong>Old Stock:</strong> {{ new_product[6] }}</p>
+                    <p><strong>Category:</strong> {{ new_product[7] }}</p>
                 </div>
-            </div>
-            
-            <div class="Sales growth rate">
-            </div>
-
+            {% else %}
+                <p>No products have been added yet.</p>
+            {% endif %}
         </div>
 
     </section>
@@ -122,34 +110,32 @@
         </div>
 
         <div class="forms">
-
-            <h2>Product managament</h2>
-            <form action="/" method="post">
-                <label for="p-name">Product Name :</label>
-                <input type="text" id="name" name="name" required>
-            
-                <label for="p-price">Product Price :</label>
-                <input type="number" id="price" name="price" step="0.01" required>
-            
+            <h2>Product Management</h2>
+            <form action="/add-product" method="POST">
+                <label for="name">Product Name :</label>
+                <input type="text" id="name" name="name" required><br>
+    
+                <label for="price">Product Price :</label>
+                <input type="number" id="price" name="price" step="0.01" required><br>
+    
                 <label for="quantity">Quantity :</label>
-                <input type="number" id="quantity" name="quantity" required>
-            
-                <label for="brand">Product brand:</label>
-                <input type="text" id="brand" name="brand" required>
-            
+                <input type="number" id="quantity" name="quantity" required><br>
+    
+                <label for="brand">Product Brand:</label>
+                <input type="text" id="brand" name="brand" required><br>
+    
                 <label for="supplier">Product Supplier :</label>
-                <input type="text" id="supplier" name="supplier" required>
-            
+                <input type="text" id="supplier" name="supplier" required><br>
+    
                 <label for="stock">Old Stock :</label>
-                <input type="text" id="stock" name="stock" required>
-            
+                <input type="text" id="stock" name="stock" required><br>
+    
                 <label for="category">Category :</label>
-                <input type="text" name="category" id="category" required>
-            
+                <input type="text" name="category" id="category" required><br>
+    
                 <button type="submit">Save</button>
                 <button class="reset" type="reset">Reset</button>
             </form>
-            
         </div>
 
         <div class="bill forms">
