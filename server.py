@@ -164,30 +164,35 @@ def submit_bill():
         connection.close()
 
 
-@app.route('/get-sales-data')
+@app.route("/get-sales-data")
 def get_sales_data():
     connection = get_db_connection()
     cursor = connection.cursor()
 
-    # Sum the total quantities sold from the sales table
-    cursor.execute("""
-        SELECT SUM(quantity) as total_units_sold, 
-               SUM(product_price * quantity) as total_revenue 
-        FROM sales 
-        JOIN products ON sales.product_id = products.id
-    """)
-    result = cursor.fetchone()
-    
-    cursor.close()
-    connection.close()
+    try:
+        # Query to get total units sold
+        cursor.execute("SELECT SUM(quantity) as total_units_sold FROM sales")
+        total_units_sold_result = cursor.fetchone()
+        total_units_sold = total_units_sold_result[0] if total_units_sold_result[0] is not None else 0
 
-    if result:
-        return jsonify({
-            'total_units_sold': result[0] if result[0] is not None else 0,
-            'total_revenue': result[1] if result[1] is not None else 0
-        })
-    return jsonify({'total_units_sold': 0, 'total_revenue': 0})
+        # Query to get total revenue
+        cursor.execute("""
+            SELECT SUM(products.product_price * sales.quantity) AS total_revenue 
+            FROM sales 
+            JOIN products ON sales.product_id = products.id
+        """)
+        total_revenue_result = cursor.fetchone()
+        total_revenue = total_revenue_result[0] if total_revenue_result[0] is not None else 0
 
+    finally:
+        cursor.close()
+        connection.close()
+
+    # Return the results as JSON
+    return jsonify({
+        "total_units_sold": total_units_sold,
+        "total_revenue": total_revenue
+    })
 
 
 if __name__ == "__main__":
