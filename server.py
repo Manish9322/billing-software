@@ -133,24 +133,34 @@ def submit_bill():
             product_id = product["productId"]
             quantity = product["quantity"]
 
-            # Update the stock in the products table
+            # Fetch the product price from the products table
             cursor.execute(
-                """
-            UPDATE products 
-            SET quantity = quantity - %s 
-            WHERE id = %s
-            """,
-                (quantity, product_id),
+                "SELECT product_price FROM products WHERE id = %s", (product_id,)
             )
+            product_price_result = cursor.fetchone()
 
-            # Insert into the sales table
-            cursor.execute(
-                """
-            INSERT INTO sales (product_id, quantity)
-            VALUES (%s, %s)
-            """,
-                (product_id, quantity),
-            )
+            if product_price_result:
+                product_price = product_price_result[0]
+                total_amount = product_price * quantity
+
+                # Update the stock in the products table
+                cursor.execute(
+                    """
+                    UPDATE products 
+                    SET quantity = quantity - %s 
+                    WHERE id = %s
+                    """,
+                    (quantity, product_id),
+                )
+
+                # Insert into the sales table with the total amount and customer name
+                cursor.execute(
+                    """
+                    INSERT INTO sales (product_id, quantity, total_amount, customer_name)
+                    VALUES (%s, %s, %s, %s)
+                    """,
+                    (product_id, quantity, total_amount, customer_name),  # Include customer_name here
+                )
 
         connection.commit()
         return jsonify({"status": "success", "message": "Bill submitted successfully"})
@@ -170,29 +180,28 @@ def get_sales_data():
     cursor = connection.cursor()
 
     try:
-        # Query to get total units sold
+        # Query to get total units sold from the sales table
         cursor.execute("SELECT SUM(quantity) as total_units_sold FROM sales")
         total_units_sold_result = cursor.fetchone()
-        total_units_sold = total_units_sold_result[0] if total_units_sold_result[0] is not None else 0
+        total_units_sold = (
+            total_units_sold_result[0] if total_units_sold_result[0] is not None else 0
+        )
 
-        # Query to get total revenue
-        cursor.execute("""
-            SELECT SUM(products.product_price * sales.quantity) AS total_revenue 
-            FROM sales 
-            JOIN products ON sales.product_id = products.id
-        """)
+        # Query to get total revenue from the total_amount column in the sales table
+        cursor.execute("SELECT SUM(total_amount) AS total_revenue FROM sales")
         total_revenue_result = cursor.fetchone()
-        total_revenue = total_revenue_result[0] if total_revenue_result[0] is not None else 0
+        total_revenue = (
+            total_revenue_result[0] if total_revenue_result[0] is not None else 0
+        )
 
     finally:
         cursor.close()
         connection.close()
 
     # Return the results as JSON
-    return jsonify({
-        "total_units_sold": total_units_sold,
-        "total_revenue": total_revenue
-    })
+    return jsonify(
+        {"total_units_sold": total_units_sold, "total_revenue": total_revenue}
+    )
 
 
 if __name__ == "__main__":
